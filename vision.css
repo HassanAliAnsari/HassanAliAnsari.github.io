@@ -91,6 +91,11 @@
 .terrain-rail a:focus-visible { outline-offset: 1px; }
 .terrain-rover { position: fixed; z-index: 5; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .terrain-active main > :is(.section, .expertise) { padding-left: max(7.8vw, 84px); }
+@media (min-width: 761px) {
+  .terrain-active main > .about {
+    padding-inline: max(7.8vw, 84px, calc((100% - 1320px) / 2));
+  }
+}
 @media (max-width: 760px) {
   .terrain-rail { left: 3px; width: 54px; border-radius: 14px; }
   .terrain-rail a span { padding-inline: 3px; }
@@ -100,4 +105,5 @@
 @media (prefers-reduced-motion: reduce) {
   .terrain-rover, .terrain-rail { display: none; }
   .terrain-active main > :is(.section, .expertise) { padding-left: 6%; }
+  .terrain-active main > .about { padding-inline: max(6%, calc((100% - 1320px) / 2)); }
 }
