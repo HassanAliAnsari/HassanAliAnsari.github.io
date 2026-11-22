@@ -9,7 +9,7 @@
   const sections = stops.map(stop => document.getElementById(stop.hash.slice(1)));
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const narrow = matchMedia('(max-width: 760px)');
-  const railStops = [[.50, .06], [.70, .22], [.35, .39], [.66, .57], [.34, .75], [.53, .93]];
+  const railStops = [[.50, .06], [.70, .26], [.31, .49], [.67, .71], [.50, .93]];
   const clamp = value => Math.max(0, Math.min(1, value));
   let heroScene;
   let railScene;
@@ -33,7 +33,13 @@
   function makeScene(context, points, dark) {
     const { width, height } = context.canvas.getBoundingClientRect();
     const path = points.map(([x, y]) => [x * width, y * height]);
+    if (!dark) path.splice(1, 0, [.50 * width, .122 * height]);
     const samples = Array.from({ length: 161 }, (_, i) => pointAt(path, i / 160));
+    const distances = [0];
+    for (let i = 1; i < samples.length; i++) {
+      distances.push(distances[i - 1] + Math.hypot(
+        samples[i][0] - samples[i - 1][0], samples[i][1] - samples[i - 1][1]));
+    }
     const rocks = [];
     let seed = 91;
     function random() {
@@ -112,14 +118,28 @@
     context.strokeStyle = dark ? '#89dbe3aa' : '#48838baa';
     context.stroke();
     context.setLineDash([]);
-    return { path, rocks };
+    return { path, rocks, distances: dark ? distances : null };
+  }
+
+  function pathPoint(scene, progress) {
+    if (!scene.distances) {
+      const stop = clamp(progress) * (scene.path.length - 2);
+      const position = stop < 1 ? stop * 2 : stop + 1;
+      return pointAt(scene.path, position / (scene.path.length - 1));
+    }
+    const target = clamp(progress) * scene.distances.at(-1);
+    const next = scene.distances.findIndex(distance => distance > target);
+    if (next < 0) return scene.path.at(-1);
+    const from = scene.distances[next - 1];
+    const fraction = (target - from) / (scene.distances[next] - from);
+    return pointAt(scene.path, (next - 1 + fraction) / (scene.distances.length - 1));
   }
 
   function screenPose(canvas, scene, progress) {
     const bounds = canvas.getBoundingClientRect();
-    const [x, y] = pointAt(scene.path, progress);
-    const previous = pointAt(scene.path, progress - .006);
-    const next = pointAt(scene.path, progress + .006);
+    const [x, y] = pathPoint(scene, progress);
+    const previous = pathPoint(scene, progress - .006);
+    const next = pathPoint(scene, progress + .006);
     return {
       x: bounds.left + x,
       y: bounds.top + y,
@@ -212,12 +232,40 @@
     rover.restore();
   }
 
+  function drawConnector(exit, entrance, opacity) {
+    rover.save();
+    rover.globalAlpha = opacity;
+    rover.beginPath();
+    rover.moveTo(exit.x, exit.y);
+    rover.lineTo(entrance.x, entrance.y);
+    rover.lineWidth = narrow.matches ? 7 : 13;
+    rover.strokeStyle = '#5ba6ad42';
+    rover.stroke();
+    rover.setLineDash([3, 5]);
+    rover.lineWidth = 1.4;
+    rover.strokeStyle = '#5896a3';
+    rover.stroke();
+    rover.restore();
+  }
+
   function update() {
     frame = 0;
     rover.clearRect(0, 0, rover.canvas.width, rover.canvas.height);
-    const heroBottom = hero.getBoundingClientRect().bottom + scrollY;
-    const departure = Math.max(1, heroBottom - innerHeight * .58);
-    const arrival = departure + Math.min(innerHeight * .28, 200);
+    if (motion.matches) return;
+
+    const edge = hero.getBoundingClientRect().bottom;
+    const bodyLength = narrow.matches ? 33 : 49;
+    const railSize = narrow.matches ? 18 : 29;
+    const departure = Math.max(1, edge + scrollY - innerHeight * .59);
+    const arrival = departure + Math.min(innerHeight * .18, 130);
+    const transfer = clamp((scrollY - departure) / (arrival - departure));
+
+    // The trail rolls up with the hero edge until it reaches its fixed gutter position.
+    const reveal = clamp((scrollY - departure + 95) / 95);
+    rail.style.setProperty('--terrain-offset', Math.max(0, edge + 8 - rail.offsetTop) + 'px');
+    rail.style.setProperty('--terrain-reveal', reveal);
+    rail.inert = reveal < 1;
+
     const end = Math.max(arrival, document.documentElement.scrollHeight - innerHeight);
     const offset = Math.min(170, innerHeight * .22);
     const scrollStops = sections.map((section, index) => {
@@ -226,15 +274,9 @@
       return Math.max(arrival, Math.min(end, section.getBoundingClientRect().top + scrollY - offset));
     });
     const segment = scrollStops.findIndex(position => position > scrollY) - 1;
-    const railProgress = scrollY <= arrival ? 0 : scrollY >= end ? 1 :
+    const progress = scrollY <= arrival ? 0 : scrollY >= end ? 1 :
       (segment + clamp((scrollY - scrollStops[segment]) / (scrollStops[segment + 1] - scrollStops[segment]))) /
         (scrollStops.length - 1);
-    const heroSize = narrow.matches ? 33 : 49;
-    const railSize = narrow.matches ? 18 : 29;
-    const transfer = clamp((scrollY - departure) / (arrival - departure));
-    rail.style.setProperty('--terrain-reveal', clamp(transfer * 1.8));
-    rail.inert = motion.matches || transfer === 0;
-    if (motion.matches) return;
 
     const active = sections.reduce((current, section, index) =>
       section.getBoundingClientRect().top <= innerHeight * .42 ? index : current, 0);
@@ -243,25 +285,18 @@
       else stop.removeAttribute('aria-current');
     });
 
+    const exit = screenPose(layers[0], heroScene, 1);
+    const entrance = screenPose(layers[1], railScene, 0);
+    if (reveal > 0 && exit.y >= -20) drawConnector(exit, entrance, reveal * clamp((edge + 20) / 75));
+
     if (transfer === 0) {
-      drawRover(screenPose(layers[0], heroScene, scrollY / departure), heroSize);
-      return;
+      drawRover(screenPose(layers[0], heroScene, scrollY / departure), bodyLength);
+    } else if (transfer < 1) {
+      const y = exit.y + (entrance.y - exit.y) * transfer;
+      drawRover({ ...entrance, y, heading: Math.PI / 2 }, bodyLength + (railSize - bodyLength) * transfer);
+    } else {
+      drawRover(screenPose(layers[1], railScene, progress), railSize);
     }
-    const destination = screenPose(layers[1], railScene, railProgress);
-    if (transfer === 1) {
-      drawRover(destination, railSize);
-      return;
-    }
-    const start = screenPose(layers[0], heroScene, 1);
-    const eased = transfer * transfer * (3 - 2 * transfer);
-    drawRover({
-      ...destination,
-      x: start.x + (destination.x - start.x) * eased,
-      y: start.y + (destination.y - start.y) * eased,
-      heading: start.heading + Math.atan2(Math.sin(destination.heading - start.heading),
-        Math.cos(destination.heading - start.heading)) * eased,
-      rocks: []
-    }, heroSize + (railSize - heroSize) * eased);
   }
 
   function layout() {
@@ -271,8 +306,8 @@
     const heroBounds = hero.getBoundingClientRect();
     const exitX = motion.matches ? .06 : (railBounds.left + railBounds.width * .5) / heroBounds.width;
     const heroRoute = compact
-      ? [[.96, .36], [.95, .61], [.96, .82], [.84, .94], [.58, .95], [.33, .92], [exitX, .96]]
-      : [[.51, .43], [.49, .61], [.51, .78], [.46, .93], [.33, .96], [.17, .90], [exitX, .96]];
+      ? [[.96, .36], [.95, .61], [.96, .82], [.84, .94], [.58, .91], [.33, .91], [exitX, .943], [exitX, .988]]
+      : [[.51, .43], [.49, .61], [.51, .78], [.46, .93], [.33, .93], [.17, .87], [exitX, .927], [exitX, .988]];
     heroScene = makeScene(heroMap, heroRoute, true);
     if (!motion.matches) railScene = makeScene(railMap, railStops, false);
     const density = Math.min(devicePixelRatio || 1, 2);
