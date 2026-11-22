@@ -28,70 +28,57 @@
 .hero-stage .portrait { border-radius: 22px; }
 .hero-stage .portrait-label span { color: #bec7f4; }
 .hero-stage .portrait-label p { color: #fff; }
-.robot-workcell.section {
-  min-height: 190vh;
-  padding-top: 62px;
-  padding-bottom: 40px;
-}
-.robot-sticky { position: sticky; top: 20px; }
-.robot-heading {
-  display: grid;
-  grid-template-columns: 1fr minmax(220px, .65fr);
-  align-items: end;
-  gap: 12px 30px;
-  margin-bottom: 18px;
-}
-.robot-heading h2 { margin: 0; }
-.robot-heading > p { margin: 0 0 4px; color: #455372; }
-.robot-instrument {
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid #313d66;
-  border-radius: 18px;
-  color: #f5f7ff;
-  background: #10152e;
-  box-shadow: 0 20px 60px #22264a20;
-}
-.robot-instrument canvas {
+.hero-stage .hero { position: relative; padding-bottom: 112px; }
+.terrain-hero { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.terrain-rail {
+  position: fixed;
+  z-index: 4;
+  top: 18%;
+  bottom: 12%;
+  left: 8px;
+  width: clamp(55px, 6.4vw, 98px);
+  max-height: 690px;
   display: block;
-  width: min(100%, 125vh);
-  height: auto;
-  margin: auto;
+  isolation: isolate;
+  border: 1px solid #bed2d4;
+  border-radius: 24px;
+  background: #eaf4f1;
+  box-shadow: 0 9px 30px #121a3420;
+  opacity: var(--terrain-reveal, 0);
 }
-.robot-instrument figcaption { border-top: 1px solid #334069; padding: 13px 19px 15px; }
-.robot-steps {
+.terrain-rail[hidden] { display: none; }
+.terrain-map { display: block; width: 100%; height: 100%; border-radius: inherit; }
+.terrain-rail a {
+  position: absolute;
+  left: var(--stop-x);
+  top: var(--stop-y);
+  width: 24px;
+  height: 24px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+  place-items: center;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
 }
-.robot-steps li {
-  border-top: 2px solid #526085;
-  padding-top: 5px;
-  color: #bac5e7;
-  font-size: 13px;
-  font-weight: 650;
+.terrain-rail a::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: #faffff;
+  border: 1px solid #4b7d84;
+  border-radius: 50%;
 }
-.robot-steps li[aria-current] { color: #dcefff; border-color: #92e5ff; }
-.robot-readout { margin: 7px 0 0; font-size: 14px; color: #e0e8fb; }
+.terrain-rail a:hover::before, .terrain-rail a[aria-current]::before { background: #237e8c; }
+.terrain-rover { position: fixed; z-index: 5; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.terrain-active main > :is(.section, .expertise) { padding-left: max(7.8vw, 84px); }
 @media (max-width: 760px) {
-  .robot-workcell.section { min-height: 160vh; padding-top: 45px; }
-  .robot-heading { grid-template-columns: 1fr; }
-  .robot-heading h2 { font-size: clamp(29px, 8vw, 43px); }
-  .robot-instrument figcaption { padding-inline: 12px; }
-}
-@media (max-height: 550px) and (orientation: landscape) {
-  .robot-sticky { top: 0; }
-  .robot-heading > p, .robot-heading .eyebrow { display: none; }
-  .robot-heading { margin-bottom: 8px; }
-  .robot-heading h2 { font-size: 24px; }
-  .robot-instrument canvas { width: min(100%, 105vh); }
+  .terrain-rail { left: 3px; width: 33px; border-radius: 14px; }
+  .terrain-rail a { width: 18px; height: 23px; }
+  .terrain-active main > :is(.section, .expertise) { padding-left: 45px; }
+  .hero-stage .hero { padding-bottom: 90px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .robot-workcell.section { min-height: 0; }
-  .robot-sticky { position: static; }
+  .terrain-rover, .terrain-rail { display: none; }
+  .terrain-active main > :is(.section, .expertise) { padding-left: 6%; }
 }
 .vision-lab-header {
   display: grid;

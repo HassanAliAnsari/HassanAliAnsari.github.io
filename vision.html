@@ -1,41 +1,28 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hassan Ali Ansari · Computer Vision & Deep Learning</title><meta name="description" content="Hassan Ali Ansari builds perception systems, from model development to real-time inference. Explore selected work in computer vision, tracking and embedded deployment."><meta name="theme-color" content="#101329"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234b4fff'/%3E%3Ctext x='12' y='44' font-family='sans-serif' font-weight='bold' font-size='34' fill='white'%3EHA%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="style.css?v=portrait-crop">
-<link rel="stylesheet" href="vision.css?v=workcell">
+<link rel="stylesheet" href="vision.css?v=terrain-rover">
 <script defer src="vision-lab.js"></script>
-<script defer src="robot-workcell.js"></script>
+<script defer src="vision-terrain.js"></script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="#">Hassan Ali Ansari<span>COMPUTER VISION ENGINEER</span></a><nav aria-label="Main navigation"><a href="#vision-lab">Vision Lab</a><a href="#work">Work</a><a href="#research">Research</a><a href="#about">About</a><a href="#contact">Contact</a><a href="Hassan-Ali-Ansari-CV.pdf" target="_blank" rel="noopener">CV</a></nav></header>
 
 
-<main id="main"><div class="hero-stage"><section class="hero"><div class="hero-copy"><p class="eyebrow">STOCKHOLM, SWEDEN · COMPUTER VISION & DEEP LEARNING</p><h1>Perceive.<br>Model.<br><em>Infer.</em></h1><p class="intro">I build systems that learn from images and video.</p><p class="support">My work spans visual data, model development, evaluation and deployment. I’ve worked with cameras, LiDAR and vision-language models, from training data to real-time inference.</p><div class="actions"><a class="button" href="#robot-workcell">See vision in action</a><a class="text-link" href="Hassan-Ali-Ansari-CV.pdf" download>Download CV (PDF)</a><a class="text-link" href="https://www.linkedin.com/in/hassan-ali-ansari-2b9634282" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></div><div class="hero-visual"><div class="portrait"><img src="hassan.png" alt="Hassan Ali Ansari wearing a cream blazer" width="1120" height="1064"></div><div class="portrait-label"><span>HASSAN ALI ANSARI</span><p>Learning to see,<br>one example at a time.</p></div></div></section></div>
+<nav class="terrain-rail" aria-label="Portfolio route" hidden>
+  <canvas class="terrain-map" aria-hidden="true"></canvas>
+  <a href="#top" aria-label="Intro"></a>
+  <a href="#vision-lab" aria-label="Vision Lab"></a>
+  <a href="#work" aria-label="Work"></a>
+  <a href="#research" aria-label="Research"></a>
+  <a href="#about" aria-label="About"></a>
+  <a href="#contact" aria-label="Contact"></a>
+</nav>
+<canvas class="terrain-rover" aria-hidden="true"></canvas>
+<main id="main"><div class="hero-stage"><canvas class="terrain-hero" aria-hidden="true"></canvas><section class="hero" id="top"><div class="hero-copy"><p class="eyebrow">STOCKHOLM, SWEDEN · COMPUTER VISION & DEEP LEARNING</p><h1>Perceive.<br>Model.<br><em>Infer.</em></h1><p class="intro">I build systems that learn from images and video.</p><p class="support">My work spans visual data, model development, evaluation and deployment. I’ve worked with cameras, LiDAR and vision-language models, from training data to real-time inference.</p><div class="actions"><a class="button" href="#vision-lab">Explore the Vision Lab</a><a class="text-link" href="Hassan-Ali-Ansari-CV.pdf" download>Download CV (PDF)</a><a class="text-link" href="https://www.linkedin.com/in/hassan-ali-ansari-2b9634282" target="_blank" rel="noopener noreferrer">LinkedIn</a></div></div><div class="hero-visual"><div class="portrait"><img src="hassan.png" alt="Hassan Ali Ansari wearing a cream blazer" width="1120" height="1064"></div><div class="portrait-label"><span>HASSAN ALI ANSARI</span><p>Learning to see,<br>one example at a time.</p></div></div></section></div>
 <div class="expertise" aria-label="Core expertise"><span>Image segmentation</span><span>Vision-language models</span><span>3D perception</span><span>Real-time inference</span></div>
 
 
 
 
-<section id="robot-workcell" class="robot-workcell section" aria-labelledby="robot-title">
-  <div class="robot-sticky">
-    <div class="robot-heading">
-      <div>
-        <p class="eyebrow">VISION IN ACTION</p>
-        <h2 id="robot-title">Watch a robot map the room.</h2>
-      </div>
-      <p>Scroll to steer a glass rover through a simulated room and watch its map fill in.</p>
-    </div>
-    <figure class="robot-instrument">
-      <canvas width="900" height="460" role="img" aria-label="A glass rover scans a room. A second panel shows the free and occupied space it has mapped."></canvas>
-      <figcaption>
-        <ol class="robot-steps" aria-label="Workcell steps">
-          <li aria-current="step">Scan</li>
-          <li>Detect</li>
-          <li>Navigate</li>
-          <li>Map</li>
-        </ol>
-        <p class="robot-readout">The rover sweeps its range sensor across the room.</p>
-      </figcaption>
-    </figure>
-  </div>
-</section>
 <section id="vision-lab" class="vision-lab section" aria-labelledby="vision-lab-title">
   <div class="vision-lab-header">
     <div>
