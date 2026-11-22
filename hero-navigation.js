@@ -4,6 +4,8 @@
   const ctx = canvas?.getContext('2d');
   if (!ctx) return;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const desktop = matchMedia('(min-width: 1041px)');
+  const startStop = document.querySelector('.portfolio-road .road-stop');
   const width = 960;
   const height = 430;
   const route = [
@@ -96,7 +98,7 @@
     ctx.restore();
   }
 
-  function draw(progress) {
+  function draw(progress, showCar) {
     const density = Math.min(devicePixelRatio || 1, 2);
     const pixelWidth = Math.max(1, Math.round(canvas.clientWidth * density));
     const pixelHeight = Math.max(1, Math.round(canvas.clientHeight * density));
@@ -133,20 +135,22 @@
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.setLineDash([]);
-    const end = route.at(-1).at(-1);
+    const end = route[0][0];
     box(end[0] - 9, end[1] - 9, 18, 18, 9, '#d8e1ff', '#637bd6', 2);
-    const position = progress * distance;
+    if (!showCar) return;
+    const position = (1 - progress) * distance;
     const pose = routePose(position);
     ctx.save();
     ctx.shadowColor = '#738cff';
     ctx.shadowBlur = 8;
-    for (let t = 18; t < 132 && position + t < distance; t += 13) {
-      const dot = routePose(position + t);
+    for (let t = 18; t < 132 && position - t > 0; t += 13) {
+      const dot = routePose(position - t);
       box(dot.x - 2.2, dot.y - 2.2, 4.4, 4.4, 2.2, '#6789ef', '#f3f7ff', 1);
     }
     ctx.restore();
-    sensor(pose);
-    vehicle(pose.x, pose.y, pose.angle, true);
+    const heading = pose.angle + Math.PI;
+    sensor({ ...pose, angle: heading });
+    vehicle(pose.x, pose.y, heading, true);
   }
 
   let frame = 0;
@@ -155,13 +159,25 @@
     frame = requestAnimationFrame(() => {
       frame = 0;
       const bounds = scene.getBoundingClientRect();
-      const progress = reduced.matches ? 0.36 :
-        Math.max(0, Math.min(1, 0.37 + -bounds.top / (bounds.height * 0.86)));
-      draw(progress);
+      const lot = canvas.getBoundingClientRect();
+      const [x, y] = route[0][0];
+      const exit = { x: lot.left + x / width * lot.width, y: lot.top + y / height * lot.height };
+      const entry = startStop?.getBoundingClientRect();
+      const targetY = entry ? entry.top + entry.height / 2 : innerHeight * 0.25;
+      const departure = desktop.matches
+        ? Math.max(120, scrollY + exit.y - targetY - 36)
+        : Math.max(120, scrollY + bounds.top + bounds.height * 0.55);
+      const arrival = departure + 88;
+      const transfer = Math.max(0, Math.min(1, (scrollY - departure) / (arrival - departure)));
+      const progress = reduced.matches ? 0.50 : Math.min(1, 0.43 + 0.57 * Math.max(0, scrollY) / departure);
+      if (bounds.bottom > 0) draw(progress, reduced.matches || scrollY < departure);
+      document.dispatchEvent(new CustomEvent('parking-handoff', {
+        detail: { arrival, transfer, exit, duration: arrival - departure, departed: scrollY >= departure }
+      }));
     });
   }
   addEventListener('scroll', () => {
-    if (!reduced.matches && scene.getBoundingClientRect().bottom > 0) schedule();
+    if (!reduced.matches) schedule();
   }, { passive: true });
   new ResizeObserver(schedule).observe(canvas);
   reduced.addEventListener('change', schedule);

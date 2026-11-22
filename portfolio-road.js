@@ -10,6 +10,7 @@
   const desktop = matchMedia('(min-width: 1041px)');
   const mapWidth = 100;
   const mapHeight = 500;
+  let handoff = null;
   const waypoints = [[50, 26], [72, 138], [28, 250], [72, 362], [50, 474]];
   const route = waypoints.slice(0, -1).map(([x, y], index) => {
     const [nextX, nextY] = waypoints[index + 1];
@@ -73,9 +74,32 @@
     const [behindX, behindY] = trace(Math.max(0, t - 0.015));
     const heading = Math.atan2((aheadY - behindY) * height / mapHeight,
       (aheadX - behindX) * width / mapWidth) - Math.PI / 2;
-    car.style.setProperty('--car-x', `${x / mapWidth * 100}%`);
-    car.style.setProperty('--car-y', `${y / mapHeight * 100}%`);
-    car.style.setProperty('--car-heading', `${heading}rad`);
+    let carX = x / mapWidth * width;
+    let carY = y / mapHeight * height;
+    let carHeading = heading;
+    let scale = 1;
+    if (handoff?.departed && handoff.transfer < 1) {
+      const bounds = map.getBoundingClientRect();
+      const t = handoff.transfer;
+      const u = 1 - t;
+      const endX = waypoints[0][0] / mapWidth * width;
+      const endY = waypoints[0][1] / mapHeight * height;
+      const startX = handoff.exit.x - bounds.left;
+      const startY = handoff.exit.y + t * handoff.duration - bounds.top;
+      const b = [startX - 35, startY];
+      const c = [endX, endY - 28];
+      carX = u ** 3 * startX + 3 * u ** 2 * t * b[0] + 3 * u * t ** 2 * c[0] + t ** 3 * endX;
+      carY = u ** 3 * startY + 3 * u ** 2 * t * b[1] + 3 * u * t ** 2 * c[1] + t ** 3 * endY;
+      carHeading = Math.atan2(
+        u ** 2 * (b[1] - startY) + 2 * u * t * (c[1] - b[1]) + t ** 2 * (endY - c[1]),
+        u ** 2 * (b[0] - startX) + 2 * u * t * (c[0] - b[0]) + t ** 2 * (endX - c[0])
+      ) - Math.PI / 2;
+      scale = 1 + u * 1.35;
+    }
+    car.style.setProperty('--car-x', `${carX}px`);
+    car.style.setProperty('--car-y', `${carY}px`);
+    car.style.setProperty('--car-heading', `${carHeading}rad`);
+    car.style.setProperty('--car-scale', scale);
   }
 
   if (context) {
@@ -98,6 +122,9 @@
       Math.max(0, Math.min(end, section.getBoundingClientRect().top + scrollY - offset)));
     const contactStart = positions.at(-1);
     positions[positions.length - 1] = end;
+    if (handoff) positions[0] = Math.min(handoff.arrival, positions[1]);
+    const opacity = !handoff ? 0 : !handoff.departed ? 0 : desktop.matches ? 1 : handoff.transfer;
+    car.style.setProperty('--car-opacity', opacity);
 
     let index = 0;
     while (index < positions.length - 1 && y >= positions[index + 1] - 1) index++;
@@ -121,6 +148,10 @@
 
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', schedule);
+  document.addEventListener('parking-handoff', event => {
+    handoff = event.detail;
+    schedule();
+  });
   new ResizeObserver(schedule).observe(document.body);
   update();
 })();

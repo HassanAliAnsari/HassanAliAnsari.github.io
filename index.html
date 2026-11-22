@@ -137,6 +137,7 @@
   background: linear-gradient(90deg, #717cff, #4b4fff 55%, #293aa8);
   box-shadow: 0 2px 5px #253b8750;
   pointer-events: none;
+  opacity: var(--car-opacity, 0);
 }
 .portfolio-road .road-car::before {
   content: "";
@@ -184,7 +185,7 @@
     top: var(--car-y);
     width: 17px;
     height: 28px;
-    transform: translate(-50%, -50%) rotate(var(--car-heading, 0rad));
+    transform: translate(-50%, -50%) rotate(var(--car-heading, 0rad)) scale(var(--car-scale, 1));
   }
 }
 @media (max-width: 1040px) {
@@ -233,8 +234,8 @@
   .portfolio-road .road-lane::after { display: none; }
 }
 </style>
-<script defer src="portfolio-road.js?v=curves"></script>
-<script defer src="hero-navigation.js?v=original-blue-car"></script>
+<script defer src="portfolio-road.js?v=parking-handoff"></script>
+<script defer src="hero-navigation.js?v=parking-handoff"></script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="#">Hassan Ali Ansari<span>COMPUTER VISION ENGINEER</span></a><nav aria-label="Main navigation"><a href="#work">Work</a><a href="#research">Research</a><a href="#about">About</a><a href="#contact">Contact</a><a href="Hassan-Ali-Ansari-CV.pdf" target="_blank" rel="noopener">CV</a></nav></header>
 <nav class="portfolio-road" aria-label="Portfolio route">
