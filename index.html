@@ -157,7 +157,37 @@
   background: #fff;
   box-shadow: 6px 0 #fff;
 }
-@media (max-width: 960px) {
+.portfolio-road .road-map { display: none; }
+@media (min-width: 1041px) {
+  .portfolio-road.has-curves {
+    left: max(4px, env(safe-area-inset-left));
+    width: clamp(58px, 5.55vw, 82px);
+    height: min(470px, 76vh);
+  }
+  .portfolio-road.has-curves .road-lane { inset: 0; }
+  .portfolio-road.has-curves .road-lane::before,
+  .portfolio-road.has-curves .road-lane::after { display: none; }
+  .portfolio-road.has-curves .road-map {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .portfolio-road.has-curves .road-stop {
+    left: var(--road-x);
+    top: var(--road-y);
+  }
+  .portfolio-road.has-curves .road-car {
+    left: var(--car-x);
+    top: var(--car-y);
+    width: 17px;
+    height: 28px;
+    transform: translate(-50%, -50%) rotate(var(--car-heading, 0rad));
+  }
+}
+@media (max-width: 1040px) {
   body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   .portfolio-road {
     top: auto;
@@ -203,12 +233,13 @@
   .portfolio-road .road-lane::after { display: none; }
 }
 </style>
-<script defer src="portfolio-road.js"></script>
+<script defer src="portfolio-road.js?v=curves"></script>
 <script defer src="hero-navigation.js?v=original-blue-car"></script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a><header><a class="brand" href="#">Hassan Ali Ansari<span>COMPUTER VISION ENGINEER</span></a><nav aria-label="Main navigation"><a href="#work">Work</a><a href="#research">Research</a><a href="#about">About</a><a href="#contact">Contact</a><a href="Hassan-Ali-Ansari-CV.pdf" target="_blank" rel="noopener">CV</a></nav></header>
 <nav class="portfolio-road" aria-label="Portfolio route">
   <div class="road-lane">
+    <canvas class="road-map" aria-hidden="true"></canvas>
     <a class="road-stop" style="--stop: 0%" href="#main"><span class="road-dot" aria-hidden="true"></span><span class="road-label">Start</span></a>
     <a class="road-stop" style="--stop: 25%" href="#work"><span class="road-dot" aria-hidden="true"></span><span class="road-label">Work</span></a>
     <a class="road-stop" style="--stop: 50%" href="#research"><span class="road-dot" aria-hidden="true"></span><span class="road-label">Research</span></a>
