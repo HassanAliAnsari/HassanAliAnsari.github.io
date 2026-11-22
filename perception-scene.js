@@ -1,5 +1,5 @@
 (() => {
-  const canvas = document.querySelector('.perception-scene canvas');
+  const canvas = document.querySelector('.perception-scene');
   const context = canvas?.getContext('2d');
   if (!context) return;
 
@@ -22,13 +22,14 @@
     context.setTransform(density, 0, 0, density, 0, 0);
     context.clearRect(0, 0, width, height);
 
-    const scale = Math.min(width / 1160, height / 235);
+    const compact = width < 760;
+    const scale = Math.min(Math.max(width / 880, 0.64), 1.75);
     const progress = reducedMotion.matches ? 0.5 :
-      Math.max(0, Math.min(1, (innerHeight - bounds.top) / (innerHeight + height)));
-    const travel = (progress - 0.5) * 490;
+      Math.max(0, Math.min(1, -bounds.top / height));
+    const travel = progress * 350;
     const project = ([x, y, z = 0]) => [
       width * 0.5 + (x - y * 0.48) * scale,
-      height * 0.57 + (x * 0.14 + y * 0.45 - z) * scale
+      height * (compact ? 0.57 : 0.71) + (-x * 0.14 + y * 0.45 - z) * scale
     ];
 
     function path(points, stroke, fill) {
@@ -50,21 +51,21 @@
     }
 
     for (let x = -1800; x <= 1800; x += 56) {
-      path([[x, -440], [x, 450]], '#a3b4fa17');
+      path([[x, -440], [x, 450]], '#738fc414');
     }
     for (let y = -440; y <= 450; y += 40) {
-      path([[-1800, y], [1800, y]], '#a3b4fa17');
+      path([[-1800, y], [1800, y]], '#738fc414');
     }
-    path([[-1800, -162], [1800, -162], [1800, 162], [-1800, 162]], '#91a8f547', '#101737aa');
+    path([[-1800, -162], [1800, -162], [1800, 162], [-1800, 162]], '#869bc13b', '#d6e1f338');
     context.setLineDash([16 * scale, 15 * scale]);
-    path([[-1800, 0], [1800, 0]], '#97abfa80');
+    path([[-1800, 0], [1800, 0]], '#7893bf50');
     context.setLineDash([]);
 
     function vehicle(x, y, shape, color) {
       const footprint = [[-8, -9], [shape.length + 9, -9], [shape.length + 9, 72], [-8, 72]];
       const points = coordinates => coordinates.map(([a, b, c = 0]) => [x + a, y + b, c]);
       const line = (coordinates, opacity) => path(points(coordinates), color + opacity);
-      const face = (coordinates, opacity) => path(points(coordinates), color + 'd6', color + opacity);
+      const face = (coordinates, opacity) => path(points(coordinates), color + '88', color + opacity);
 
       context.setLineDash([4 * scale, 5 * scale]);
       line([...footprint, footprint[0]], 'aa');
@@ -87,7 +88,12 @@
           const [a, z] = profile[i - 1];
           const [b, w] = profile[i];
           if (z === 12 && w === 12) continue;
-          face([[a, 0, z], [b, 0, w], [b, 63, w], [a, 63, z]], '33');
+          const [, top] = project([x + a, y, z]);
+          const [, bottom] = project([x + b, y + 63, w]);
+          const shine = context.createLinearGradient(0, Math.min(top, bottom), 0, Math.max(top, bottom) + 1);
+          shine.addColorStop(0, '#ffffffba');
+          shine.addColorStop(1, color + '29');
+          path(points([[a, 0, z], [b, 0, w], [b, 63, w], [a, 63, z]]), color + '88', shine);
         }
         face(side(63), '24');
       };
@@ -104,8 +110,8 @@
       [[0, 12], [0, 70], [166, 70], [166, 12]],
       [[172, 12], [172, 67], [214, 67], [236, 53], [243, 30], [243, 12]]
     ]};
-    vehicle(118 - travel * 0.72, -123, car, '#a7d4ff');
-    vehicle(-267 + travel, 38, truck, '#ad9cff');
+    vehicle((compact ? 48 : 210) - travel * 0.72, -128, car, '#7298c9');
+    vehicle(-102 + travel, 43, truck, '#748fc7');
   }
 
   function schedule() {
