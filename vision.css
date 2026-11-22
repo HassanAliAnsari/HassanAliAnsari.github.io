@@ -36,7 +36,7 @@
   top: 18%;
   bottom: 12%;
   left: 8px;
-  width: clamp(55px, 6.4vw, 98px);
+  width: clamp(63px, 6.4vw, 98px);
   max-height: 690px;
   display: block;
   isolation: isolate;
@@ -51,30 +51,50 @@
 .terrain-map { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .terrain-rail a {
   position: absolute;
-  left: var(--stop-x);
+  inset-inline: 0;
   top: var(--stop-y);
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-radius: 7px;
+  transform: translateY(-6px);
 }
+.terrain-rail a:last-of-type { padding-top: 12px; }
 .terrain-rail a::before {
   content: "";
+  position: absolute;
+  top: 6px;
+  left: var(--stop-x);
   width: 7px;
   height: 7px;
+  transform: translate(-50%, -50%);
   background: #faffff;
   border: 1px solid #4b7d84;
   border-radius: 50%;
 }
-.terrain-rail a:hover::before, .terrain-rail a[aria-current]::before { background: #237e8c; }
+.terrain-rail a span {
+  padding: 0 5px;
+  border: 1px solid #bbd6d2;
+  border-radius: 5px;
+  color: #254a51;
+  background: #f0f8f6;
+  font-size: clamp(10px, .95vw, 12px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.terrain-rail a:is(:hover, [aria-current])::before { background: #237e8c; }
+.terrain-rail a:is(:hover, [aria-current]) span {
+  color: #fff;
+  background: #25636b;
+  border-color: #25636b;
+}
+.terrain-rail a:focus-visible { outline-offset: 1px; }
 .terrain-rover { position: fixed; z-index: 5; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .terrain-active main > :is(.section, .expertise) { padding-left: max(7.8vw, 84px); }
 @media (max-width: 760px) {
-  .terrain-rail { left: 3px; width: 33px; border-radius: 14px; }
-  .terrain-rail a { width: 18px; height: 23px; }
-  .terrain-active main > :is(.section, .expertise) { padding-left: 45px; }
+  .terrain-rail { left: 3px; width: 54px; border-radius: 14px; }
+  .terrain-rail a span { padding-inline: 3px; }
+  .terrain-active main > :is(.section, .expertise) { padding-left: 66px; }
   .hero-stage .hero { padding-bottom: 90px; }
 }
 @media (prefers-reduced-motion: reduce) {
