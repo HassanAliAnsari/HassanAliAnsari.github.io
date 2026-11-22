@@ -3,7 +3,6 @@
   const canvas = scene?.querySelector('.hero-navigation');
   const ctx = canvas?.getContext('2d');
   if (!ctx) return;
-  const suv = new Image();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const width = 960;
   const height = 430;
@@ -36,37 +35,31 @@
     if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.stroke(); }
   }
 
-  function parkedCar(x, y, angle, length) {
+  function vehicle(x, y, angle, active = false, length = 78) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
-    const w = 39;
+    const w = active ? 43 : 39;
     const x0 = -length / 2;
-    ctx.shadowColor = '#354a7440';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowColor = '#354a7460';
+    ctx.shadowBlur = 13;
+    ctx.shadowOffsetY = 6;
     const paint = ctx.createLinearGradient(0, -w / 2, 0, w / 2);
-    ['#ffffff', '#e0e8f4', '#b2bfd3'].forEach((color, i) => paint.addColorStop(i / 2, color));
-    box(x0, -w / 2, length, w, 11, paint, '#f9fbff');
+    const colors = active ? ['#798cf7', '#435bcc', '#203798'] : ['#ffffff', '#e0e8f4', '#b2bfd3'];
+    colors.forEach((color, i) => paint.addColorStop(i / 2, color));
+    box(x0, -w / 2, length, w, 11, paint, active ? '#3348a4' : '#f9fbff');
     ctx.shadowColor = 'transparent';
     for (const wheel of [x0 + 11, -x0 - 21]) {
       for (const side of [-1, 1]) {
-        box(wheel, side * (w / 2 - 2) - 3, 10, 6, 2, '#8a9bb5');
+        box(wheel, side * (w / 2 - 2) - 3, 10, 6, 2, active ? '#182b71' : '#8a9bb5');
       }
     }
-    box(x0 + 15, -w / 2 + 5, length - 34, w - 10, 7, '#a5b4ca', '#ffffff96');
-    box(x0 + 24, -w / 2 + 8, length - 51, w - 16, 4, '#edf3fb', '#ffffff9c');
-    ctx.restore();
-  }
-
-  function movingSuv(pose) {
-    if (!suv.naturalWidth) return;
-    const imageWidth = 182;
-    const imageHeight = imageWidth * suv.naturalHeight / suv.naturalWidth;
-    ctx.save();
-    ctx.translate(pose.x, pose.y);
-    ctx.rotate(pose.angle);
-    ctx.drawImage(suv, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
+    box(x0 + 15, -w / 2 + 5, length - 34, w - 10, 7, active ? '#273f9cb8' : '#a5b4ca', '#ffffff96');
+    box(x0 + 24, -w / 2 + 8, length - 51, w - 16, 4, active ? '#99aaf3' : '#edf3fb', '#ffffff9c');
+    for (const side of [-1, 1]) {
+      box(-x0 - 7, side * (w / 2 - 7) - 2, 4, 4, 1, '#fff');
+      box(x0 + 3, side * (w / 2 - 7) - 2, 3, 4, 1, active ? '#f3a0ad' : '#d5a4ad');
+    }
     ctx.restore();
   }
 
@@ -88,7 +81,7 @@
     ctx.save();
     ctx.translate(pose.x, pose.y);
     ctx.rotate(pose.angle);
-    for (const [x, direction] of [[67, 0], [-67, Math.PI]]) {
+    for (const [x, direction] of [[34, 0], [-34, Math.PI]]) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.arc(x, 0, direction ? 49 : 74, direction - 0.59, direction + 0.59);
@@ -121,10 +114,10 @@
       for (let x = 35; x < 938; x += 74) box(x, y + 5, 2, 92, 1, '#fff');
     }
     for (const [x, length] of [[74, 79], [221, 75], [368, 86], [591, 91], [811, 80]]) {
-      parkedCar(x, 72, Math.PI / 2, length);
+      vehicle(x, 72, Math.PI / 2, false, length);
     }
     for (const [x, length] of [[147, 82], [295, 92], [443, 79], [663, 90], [883, 80]]) {
-      parkedCar(x, 355, -Math.PI / 2, length);
+      vehicle(x, 355, -Math.PI / 2, false, length);
     }
     box(445, 235, 106, 41, 18, '#bfd0c9', '#fff', 2);
     box(457, 245, 82, 20, 10, '#91b0a2');
@@ -153,7 +146,7 @@
     }
     ctx.restore();
     sensor(pose);
-    movingSuv(pose);
+    vehicle(pose.x, pose.y, pose.angle, true);
   }
 
   let frame = 0;
@@ -172,7 +165,5 @@
   }, { passive: true });
   new ResizeObserver(schedule).observe(canvas);
   reduced.addEventListener('change', schedule);
-  suv.addEventListener('load', schedule);
-  suv.src = 'overhead-glass-suv.png';
   schedule();
 })();
