@@ -28,6 +28,71 @@
 .hero-stage .portrait { border-radius: 22px; }
 .hero-stage .portrait-label span { color: #bec7f4; }
 .hero-stage .portrait-label p { color: #fff; }
+.robot-workcell.section {
+  min-height: 190vh;
+  padding-top: 62px;
+  padding-bottom: 40px;
+}
+.robot-sticky { position: sticky; top: 20px; }
+.robot-heading {
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, .65fr);
+  align-items: end;
+  gap: 12px 30px;
+  margin-bottom: 18px;
+}
+.robot-heading h2 { margin: 0; }
+.robot-heading > p { margin: 0 0 4px; color: #455372; }
+.robot-instrument {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #313d66;
+  border-radius: 18px;
+  color: #f5f7ff;
+  background: #10152e;
+  box-shadow: 0 20px 60px #22264a20;
+}
+.robot-instrument canvas {
+  display: block;
+  width: min(100%, 125vh);
+  height: auto;
+  margin: auto;
+}
+.robot-instrument figcaption { border-top: 1px solid #334069; padding: 13px 19px 15px; }
+.robot-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.robot-steps li {
+  border-top: 2px solid #526085;
+  padding-top: 5px;
+  color: #bac5e7;
+  font-size: 13px;
+  font-weight: 650;
+}
+.robot-steps li[aria-current] { color: #dcefff; border-color: #92e5ff; }
+.robot-readout { margin: 7px 0 0; font-size: 14px; color: #e0e8fb; }
+@media (max-width: 760px) {
+  .robot-workcell.section { min-height: 160vh; padding-top: 45px; }
+  .robot-heading { grid-template-columns: 1fr; }
+  .robot-heading h2 { font-size: clamp(29px, 8vw, 43px); }
+  .robot-instrument figcaption { padding-inline: 12px; }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .robot-sticky { top: 0; }
+  .robot-heading > p, .robot-heading .eyebrow { display: none; }
+  .robot-heading { margin-bottom: 8px; }
+  .robot-heading h2 { font-size: 24px; }
+  .robot-instrument canvas { width: min(100%, 105vh); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .robot-workcell.section { min-height: 0; }
+  .robot-sticky { position: static; }
+}
 .vision-lab-header {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
