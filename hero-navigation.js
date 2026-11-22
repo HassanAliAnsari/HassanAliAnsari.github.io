@@ -65,25 +65,38 @@
     const imageHeight = imageWidth * suv.naturalHeight / suv.naturalWidth;
     ctx.save();
     ctx.translate(pose.x, pose.y);
-    ctx.rotate(pose.angle - 0.23);
-    ctx.scale(-1, 1);
-    ctx.drawImage(suv, -imageWidth / 2, -imageHeight * 0.7, imageWidth, imageHeight);
+    ctx.rotate(pose.angle);
+    ctx.drawImage(suv, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
     ctx.restore();
+  }
+
+  function routePose(at) {
+    const index = samples.findIndex(point => point.distance >= at);
+    if (index < 0) return samples.at(-1);
+    if (index === 0) return samples[0];
+    const a = samples[index - 1];
+    const b = samples[index];
+    const fraction = (at - a.distance) / (b.distance - a.distance);
+    return {
+      x: a.x + (b.x - a.x) * fraction,
+      y: a.y + (b.y - a.y) * fraction,
+      angle: a.angle + (b.angle - a.angle) * fraction
+    };
   }
 
   function sensor(pose) {
     ctx.save();
     ctx.translate(pose.x, pose.y);
     ctx.rotate(pose.angle);
-    for (const [x, direction] of [[34, 0], [-34, Math.PI]]) {
+    for (const [x, direction] of [[67, 0], [-67, Math.PI]]) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.arc(x, 0, direction ? 49 : 74, direction - 0.59, direction + 0.59);
       ctx.closePath();
-      ctx.fillStyle = '#36a6911a';
+      ctx.fillStyle = '#6488ff14';
       ctx.fill();
       ctx.setLineDash([4, 5]);
-      ctx.strokeStyle = '#227e73a0';
+      ctx.strokeStyle = '#6384df91';
       ctx.lineWidth = 1.25;
       ctx.stroke();
     }
@@ -129,7 +142,16 @@
     ctx.setLineDash([]);
     const end = route.at(-1).at(-1);
     box(end[0] - 9, end[1] - 9, 18, 18, 9, '#d8e1ff', '#637bd6', 2);
-    const pose = samples.find(point => point.distance >= progress * distance) ?? samples.at(-1);
+    const position = progress * distance;
+    const pose = routePose(position);
+    ctx.save();
+    ctx.shadowColor = '#738cff';
+    ctx.shadowBlur = 8;
+    for (let t = 18; t < 132 && position + t < distance; t += 13) {
+      const dot = routePose(position + t);
+      box(dot.x - 2.2, dot.y - 2.2, 4.4, 4.4, 2.2, '#6789ef', '#f3f7ff', 1);
+    }
+    ctx.restore();
     sensor(pose);
     movingSuv(pose);
   }
@@ -151,6 +173,6 @@
   new ResizeObserver(schedule).observe(canvas);
   reduced.addEventListener('change', schedule);
   suv.addEventListener('load', schedule);
-  suv.src = 'frosted-glass-vehicle.png';
+  suv.src = 'overhead-glass-suv.png';
   schedule();
 })();
